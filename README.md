@@ -100,14 +100,14 @@ Tags takes a variadic argument list and does:
 2. Any `function` argument `f` will be rendered as a child element.
 3. Any `string` argument `s` will be wrapped `-> s` and treated as a function argument (2).
 
-#### Order for attribute object is irrelevant
+#### Order of attribute object is irrelevant
 
 The arguments can be in any order. Attributes are (naturally) dealt
 with first. It is entirely possible to do:
 
     p 'some text', class:'explicit'     # <p class="explicit">some text</p>
 
-#### Order for functions/strings is preserved
+#### Order of functions/strings is preserved
 
 Strings and functions are dealt with in the declared order:
 
@@ -116,6 +116,32 @@ Strings and functions are dealt with in the declared order:
 Will render:
 
     '<p>some text <img src="/panda.jpg"> after</p>'
+
+### Single render thread
+
+When rendering with tagg, all output must be done in one go. No
+setTimeout, no ajax, no callbacks.
+
+    # THIS DOES NOT WORK!!!!
+    p 'Waiting for ajax: ' ->
+        $.ajax('/something').done(->'done')
+
+### Make your own tag
+
+Not happy with the builtins? Make your own!
+
+The library exports a function `tag(name,isVoid)` which can be used to
+make your own tags. Set `isVoid` to true to define a void element,
+like `img`, that has no closing tag.
+
+    {tag} = require 'tagg'
+    special = tag 'special'
+
+    special class:'sweet', 'thing'
+
+Renders to:
+
+    <special class="sweet">thing</special>
 
 ## Built ins
 
