@@ -91,7 +91,7 @@ Generates this output:
 ### Built in tags
 
 The built in tags are taken from [mozilla element page](eleme) apart
-from those listed as obsolote and deprecated. 
+from those listed as obsolote and deprecated.
 
 
 [eleme]: https://developer.mozilla.org/en/docs/Web/HTML/Element
