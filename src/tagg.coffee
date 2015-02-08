@@ -53,6 +53,8 @@ tag = (name, vod) -> r = (args...) ->
 # the exported tags (and tag function)
 tags = {tag}
 
+# ############ LIST OF DEFINED TAGS
+
 # html5 normal elements, copied from https://developer.mozilla.org/en/docs/Web/HTML/Element
 'html,head,style,title,address,article,body,footer,header,h1,h2,h3,h4,h5,h6,hgroup,\
 nav,section,blockquote,dd,div,dl,dt,figcaption,figure,li,main,ol,p,pre,ul,a,abbr,b,bdi,\
