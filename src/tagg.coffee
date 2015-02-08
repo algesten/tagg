@@ -24,7 +24,7 @@ unnest = (bind, f) ->
 _buf = null
 
 # creates a tag
-tag = (name, close) -> r = (args...) ->
+tag = (name, vod) -> r = (args...) ->
 
     # outmost tag sets up / tears down _buf
     unless _buf
@@ -38,17 +38,17 @@ tag = (name, close) -> r = (args...) ->
 
     _buf.push "<#{name}" +
         (if objs.length then " " + attrs(objs) else "") +
-        (if close then "/" else "") + ">"
+        ">"
     _buf.push unnest(this, f) for f in funs
-    _buf.push (if close then "" else "</#{name}>")
+    _buf.push (if vod then "" else "</#{name}>")
 
 # the exported tags (and tag function)
 tags = {tag}
 
-# html5 tag list, copied from https://developer.mozilla.org/en/docs/Web/HTML/Element
+# html5 normal elements, copied from https://developer.mozilla.org/en/docs/Web/HTML/Element
 'html,head,style,title,address,article,body,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,blockquote,dd,div,dl,dt,figcaption,figure,li,main,ol,p,pre,ul,a,abbr,b,bdi,bdo,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,ruby,s,samp,small,span,strong,sub,sup,time,u,var,audio,map,video,iframe,object,canvas,noscript,script,del,ins,caption,colgroup,table,tbody,td,tfoot,th,thead,tr,button,datalist,fieldset,form,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,decorator,element,shadow,template'.split(',').forEach (t) -> tags[t] = tag t
 
-# self closing tags
+# void elements, see http://stackoverflow.com/questions/3558119#answer-3558200
 'area,base,br,col,embed,hr,img,input,keygen,link,meta,param,source,track,wbr'.split(',').forEach (t) -> tags[t] = tag t, true
 
 if typeof module == 'object'
