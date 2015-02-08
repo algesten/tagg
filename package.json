@@ -1,7 +1,7 @@
 {
   "name": "tagg",
   "version": "0.0.1",
-  "description": "markup as coffeescript",
+  "description": "markup as coffeescript (again)",
   "main": "lib/tagg.js",
   "scripts": {
     "test": "mocha",

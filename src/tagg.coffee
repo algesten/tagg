@@ -3,12 +3,17 @@ isstring   = (s) -> typeof s == 'string'
 isfunction = (s) -> typeof s == 'function'
 concat     = (as) -> [].concat as...
 
+# boolean attributes (including html for DOCTYPE) from https://html.spec.whatwg.org/#attributes-3
+bool = {}
+'allowfullscreen,async,autofocus,autoplay,checked,controls,default,defer,disabled,formnovalidate,hidden,ismap,itemscope,loop,multiple,muted,name,novalidate,open,readonly,required,reversed,scoped,seamless,selected,sortable,typemustmatch,html'.split(',').forEach (a) -> bool[a] = true
+
 # escape text
 esc   = (s = '') -> s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
 # escape attributes
 esca  = (s) -> esc(s).replace(/"/g,'&quot;')
 # turn an array of mixed string/object to attributes
-attr  = (k, v) -> if v then "#{esca(k)}=\"#{esca(v)}\"" else "#{esca(k)}"
+attr  = (k, v) ->
+    if bool[k] then (if v then "#{esca(k)}" else '') else "#{esca(k)}=\"#{esca(v)}\""
 attrs = (as) -> (concat (attr(k,v) for k, v of a for a in as)).join(' ')
 
 # unwrapper for nested content function
@@ -37,7 +42,7 @@ tag = (name, vod) -> r = (args...) ->
     funs = args.map((a) -> if isstring(a) then (->esc(a)) else a).filter isfunction
 
     _buf.push "<#{name}" +
-        (if objs.length then " " + attrs(objs) else "") +
+        (if objs.length and (a = attrs(objs)).length then " " + a else "") +
         ">"
     _buf.push unnest(this, f) for f in funs
     _buf.push (if vod then "" else "</#{name}>")
@@ -50,6 +55,9 @@ tags = {tag}
 
 # void elements, see http://stackoverflow.com/questions/3558119#answer-3558200
 'area,base,br,col,embed,hr,img,input,keygen,link,meta,param,source,track,wbr'.split(',').forEach (t) -> tags[t] = tag t, true
+
+tags.html5 = (as...) ->
+    tag('!DOCTYPE', true) html:true, '\n', -> tags.html as...
 
 if typeof module == 'object'
     module.exports = tags
