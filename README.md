@@ -160,10 +160,14 @@ Renders to:
 The default renders the tags to an HTML string, it is possible to
 capture output callbacks and create other representations instead.
 
-This is done using the `capture(out, fun, args)` function exposed with
-`{capture} = require 'tagg'`.
+This is done using the `capture(out, fun, args)` function exposed
+with:
 
-The function takes three argument. First is an out object with the
+```coffee
+{capture} = require 'tagg'
+```
+
+The function takes three argument. First is an `out` object with the
 methods:
 
 * `start` is called once when output begins.
