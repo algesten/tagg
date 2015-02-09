@@ -11,7 +11,7 @@ npm install -S tagg
 
 Use destructuring assignment to pick out the wanted tags.
 
-```
+```coffee
 {div, p, img} = require 'tagg'
 
 div class:'special', ->
@@ -29,7 +29,7 @@ This exposes the global object `tagg`.
 
 Use destructuring assignment to pick out the wanted tags.
 
-```
+```coffee
 {div, p, img} = tagg
 
 div class:'special', ->
@@ -41,7 +41,7 @@ Example
 
 We have a list of cute pandas:
 
-```
+```coffee
 pandas = [
     {src:'/panda1.jpg', desc:'Cute baby panda'}
     {src:'/panda2.jpg', desc:'Panda with straw'}
@@ -51,7 +51,7 @@ pandas = [
 
 The following *pure coffeescript* code:
 
-```
+```coffee
 {html5, head, meta, title, script, body, p, ol, li, img} = require 'tagg'
 
 html5 ->
@@ -67,7 +67,7 @@ html5 ->
 
 Generates this output:
 
-```
+```html
 <!DOCTYPE html>
 <html>
   <head>
@@ -105,26 +105,34 @@ Tags takes a variadic argument list and does:
 The arguments can be in any order. Attributes are (naturally) dealt
 with first. It is entirely possible to do:
 
-    p 'some text', class:'explicit'     # <p class="explicit">some text</p>
+```coffee
+p 'some text', class:'explicit'     # <p class="explicit">some text</p>
+```
 
 #### Order of functions/strings is preserved
 
 Strings and functions are dealt with in the declared order:
 
-      p 'some', ' ', (-> 'text'), ' ', (-> img(src:'/panda.jpg')), ' after'
+```coffee
+p 'some', ' ', (-> 'text'), ' ', (-> img(src:'/panda.jpg')), ' after'
+```
 
 Will render:
 
-    '<p>some text <img src="/panda.jpg"> after</p>'
+```html
+<p>some text <img src="/panda.jpg"> after</p>
+```
 
 ### Single render thread
 
 When rendering with tagg, all output must be done in one go. No
 setTimeout, no ajax, no callbacks.
 
-    # THIS DOES NOT WORK!!!!
-    p 'Waiting for ajax: ' ->
-        $.ajax('/something').done(->'done')
+```coffee
+# THIS DOES NOT WORK!!!!
+p 'Waiting for ajax: ' ->
+    $.ajax('/something').done(->'done')
+```
 
 ### Make your own tag
 
@@ -134,14 +142,18 @@ The library exports a function `tag(name,isVoid)` which can be used to
 make your own tags. Set `isVoid` to true to define a void element,
 like `img`, that has no closing tag.
 
-    {tag} = require 'tagg'
-    special = tag 'special'
+```coffee
+{tag} = require 'tagg'
+special = tag 'special'
 
-    special class:'sweet', 'thing'
+special class:'sweet', 'thing'
+```
 
 Renders to:
 
-    <special class="sweet">thing</special>
+```html
+<special class="sweet">thing</special>
+```
 
 ## Built ins
 
@@ -164,17 +176,21 @@ in list of such attributes, and will not output any value for them.
 
 The map value for such properties are used as truthy/falsey, i.e.
 
-    input type:checkbox, checked:true
-    select ->
-        option selected:false, 'panda'
-        option selected:'yes', 'kitten'
+```coffee
+input type:checkbox, checked:true
+select ->
+    option selected:false, 'panda'
+    option selected:'yes', 'kitten'
+```
 
 Will render:
 
-    <input type="checkbox" checked>
-    <select>
-        <option>panda</option>
-        <option selected>kitten</option>
+```html
+<input type="checkbox" checked>
+<select>
+    <option>panda</option>
+    <option selected>kitten</option>
+```
 
 #### Empty string is falsey
 
