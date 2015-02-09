@@ -178,8 +178,7 @@ methods:
 * `close(name)` for a close tag. omitted for void elements.
 * `end` is caled once output is finished.
 
-This is an example of the default string output `attrs()` create an
-attribute string from the `props`, `esc()` escapes a string for HTML.
+This is an example of the default string output:
 
 ```coffee
 # default output, as string
@@ -188,9 +187,11 @@ class StringOut
         @buf = []
     start: ->
     begin: (name, vod, props) ->
-        @buf.push "<#{name}" + (if (a = attrs(props)).length then " " + a else "") + ">"
+        # push name and turn props into string attributes.
+        @buf.push "<#{name}" +
+            (if (a = attrs(props)).length then " " + a else "") + ">"
     text: (t) ->
-        @buf.push esc(t)
+        @buf.push esc(t)       # escape HTML text
     close: (name) ->
         @buf.push "</#{name}>"
     end: ->
