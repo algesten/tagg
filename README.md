@@ -155,6 +155,48 @@ Renders to:
 <special class="sweet">thing</special>
 ```
 
+### Capture output
+
+The default renders the tags to an HTML string, it is possible to
+capture output callbacks and create other representations instead.
+
+This is done using the `capture(out, fun, args)` function exposed with
+`{capture} = require 'tagg'`.
+
+The function takes three argument. First is an out object with the
+methods:
+
+* `start` is called once when output begins.
+* `begin(name, vod, props)` for every start tag. `name` is the tag
+  name, `vod` whether this is a [void element](void) and `props`, which
+  is a mixin of all objects passed as arguments to the tag.
+* `text(t)` for every text output with string argument `t`.
+* `close(name)` for a close tag. omitted for void elements.
+* `end` is caled once output is finished.
+
+This is an example of the default string output `attrs()` create an
+attribute string from the `props`, `esc()` escapes a string for HTML.
+
+```coffee
+# default output, as string
+class StringOut
+    constructor: ->
+        @buf = []
+    start: ->
+    begin: (name, vod, props) ->
+        @buf.push "<#{name}" + (if (a = attrs(props)).length then " " + a else "") + ">"
+    text: (t) ->
+        @buf.push esc(t)
+    close: (name) ->
+        @buf.push "</#{name}>"
+    end: ->
+    toString: -> @buf.join('')
+```
+
+The second argument is the function we want to invoke when building,
+and the third an optional array of arguments to pass to the second
+function.
+
 ## Built ins
 
 ### Built in tags
