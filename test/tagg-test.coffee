@@ -1,5 +1,5 @@
 tagg = require '../src/tagg'
-{html5, head, meta, body, ol, li, title, script, div, p, img, option} = tagg
+{capture, html5, head, meta, body, ol, li, title, script, div, p, img, option} = tagg
 
 eql = assert.deepEqual
 
@@ -26,6 +26,21 @@ describe 'elements', ->
 
     it 'is treats "html" as a boolean attribute', ->
         eql (img html:true), '<img html>'
+
+    it 'ignores undefined args', ->
+        eql (p undefined), '<p></p>'
+
+    it 'ignores null args', ->
+        eql (p null), '<p></p>'
+
+    it 'doesnt ignore false args', ->
+        eql (p false), '<p>false</p>'
+
+    it 'turns numbers to strings', ->
+        eql (p 42), '<p>42</p>'
+
+    it 'turns booleans to strings', ->
+        eql (p true), '<p>true</p>'
 
     it 'uses string arguments as child text', ->
         eql p('panda'), '<p>panda</p>'
@@ -98,7 +113,43 @@ describe 'readme example', ->
             body ->
                 p 'Funny panda compilation, puppies & kitties:'
                 ol ->
-                    li (->img src:p.src), p.desc for p in pandas
+                    li (->img src:panda.src), panda.desc for panda in pandas
 
 
         eql h, '<!DOCTYPE html>\n<html><head><meta charset="utf-8"><title>Forever Panda</title><script src="/js/jquery.min.js"></script></head><body><p>Funny panda compilation, puppies &amp; kitties:</p><ol><li><img src="/panda1.jpg">Cute baby panda</li><li><img src="/panda2.jpg">Panda with straw</li><li><img src="/panda3.jpg">Sleeping panda</li></ol></body></html>'
+
+describe 'capture', ->
+
+    out = rend = null
+
+    beforeEach ->
+        out =
+            start: spy ->
+            begin: spy (name, vod, props) ->
+            text:  spy (t) ->
+            close: spy (name) ->
+            end:   spy ->
+        rend = ->
+            div class:'foo', ->
+                p 'hello'
+                img src:'/panda.jpg'
+        capture out, rend
+
+    it 'calls start/end exactly once', ->
+        eql out.start.callCount, 1
+        eql out.end.callCount, 1
+
+    it 'invokes begin for every element', ->
+        eql out.begin.callCount, 3
+        eql out.begin.args[0], ['div', undefined, class:'foo']
+        eql out.begin.args[1], ['p',   undefined, {}]
+        eql out.begin.args[2], ['img', true,      src:'/panda.jpg']
+
+    it 'invokes text for text output', ->
+        eql out.text.callCount, 1
+        eql out.text.args[0], ['hello']
+
+    it 'invokes close for non-void element', ->
+        eql out.close.callCount, 2
+        eql out.close.args[0], ['p']
+        eql out.close.args[1], ['div']

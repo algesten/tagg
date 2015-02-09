@@ -1,7 +1,9 @@
-isplain    = (o) -> !!o && typeof o == 'object' && o.constructor == Object
-isstring   = (s) -> typeof s == 'string'
-isfunction = (s) -> typeof s == 'function'
-concat     = (as) -> [].concat as...
+isplain     = (o) -> !!o && typeof o == 'object' && o.constructor == Object
+isstring    = (s) -> typeof s == 'string'
+isprimitive = (a) -> typeof a in ['boolean', 'number', 'string', 'symbol']
+isfunction  = (s) -> typeof s == 'function'
+not_        = (f) -> (a...) -> !f(a...)
+mixin       = (os...) -> r = {}; r[k] = v for k, v of o for o in os; r
 
 # boolean attributes (including html for DOCTYPE) from https://html.spec.whatwg.org/#attributes-3
 bool = {}
@@ -17,41 +19,59 @@ esca  = (s) -> esc(s).replace(/"/g,'&quot;')
 # turn an array of mixed string/object to attributes
 attr  = (k, v) ->
     if bool[k] then (if v then "#{esca(k)}" else '') else "#{esca(k)}=\"#{esca(v)}\""
-attrs = (as) -> (concat (attr(k,v) for k, v of a for a in as)).join(' ')
+attrs = (a) -> (attr(k,v) for k, v of a).join(' ')
 
 # unwrapper for nested content function
 unnest = (bind, f) ->
     if isfunction f
         unnest bind, f.call(bind)
-    else if isstring f
-        f
-    else
-        ''
+    else if isprimitive(f)
+        out.text String(f)
 
-# trixy global output buffer
-_buf = null
+# global output when rendering, set vi capture()
+out = null
 
 # creates a tag
-tag = (name, vod) -> r = (args...) ->
+tag = (name, vod) -> tagf = (args...) ->
 
-    # outmost tag sets up / tears down _buf
-    unless _buf
-        try
-            _buf = []; r.apply(this, args); return _buf.join('')
-        finally
-            _buf = null
+    # outmost tag sets up / tears down a StringOut
+    return capture(new StringOut, tagf, args).toString() unless out
 
-    objs = args.filter isplain
-    funs = args.map((a) -> if isstring(a) then (->esc(a)) else a).filter isfunction
+    objs = args.filter(isplain).reduce ((p ,c) -> mixin p, c), {}
+    funs = args.filter(not_ isplain).map (a) -> if !isfunction(a) then (->a) else a
 
-    _buf.push "<#{name}" +
-        (if objs.length and (a = attrs(objs)).length then " " + a else "") +
-        ">"
-    _buf.push unnest(this, f) for f in funs
-    _buf.push (if vod then "" else "</#{name}>")
+    out.begin name, vod, objs
+    unnest(this, f) for f in funs
+    out.close name unless vod
+    undefined
 
-# the exported tags (and tag function)
-tags = {tag}
+# default output, as string
+class StringOut
+    constructor: ->
+        @buf = []
+    start: ->
+    begin: (name, vod, props) ->
+        @buf.push "<#{name}" + (if (a = attrs(props)).length then " " + a else "") + ">"
+    text: (t) ->
+        @buf.push esc(t)
+    close: (name) ->
+        @buf.push "</#{name}>"
+    end: ->
+    toString: -> @buf.join('')
+
+# capture the output for the given tag function applying args
+capture = (_out, tagf, args) ->
+    try
+        out = _out
+        out.start()
+        tagf.apply this, args
+        out.end()
+    finally
+        out = null
+    _out
+
+# the exported tags (and tag/capture function)
+tags = {tag, capture}
 
 # ############ LIST OF DEFINED TAGS
 
