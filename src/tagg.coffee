@@ -35,7 +35,7 @@ out = null
 tag = (name, vod) -> tagf = (args...) ->
 
     # outmost tag sets up / tears down a StringOut
-    return capture(new StringOut, tagf, args).toString() unless out
+    return capture(new StringOut, tagf, args) unless out
 
     objs = args.filter(isplain).reduce ((p ,c) -> mixin p, c), {}
     funs = args.filter(not_ isplain).map (a) -> if !isfunction(a) then (->a) else a
@@ -56,19 +56,17 @@ class StringOut
         @buf.push esc(t)
     close: (name) ->
         @buf.push "</#{name}>"
-    end: ->
-    toString: -> @buf.join('')
+    end: -> @buf.join('')
 
 # capture the output for the given tag function applying args
 capture = (_out, tagf, args) ->
     try
         out = _out
         out.start()
-        tagf.apply this, args
-        out.end()
+        tagf.apply this, (args ? [])
     finally
         out = null
-    _out
+    _out.end()
 
 # the exported tags (and tag/capture function)
 tags = {tag, capture}
