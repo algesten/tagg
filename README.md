@@ -181,7 +181,7 @@ methods:
 
 * `start` is called once when output begins.
 * `begin(name, vod, props)` for every start tag. `name` is the tag
-  name, `vod` whether this is a [void element](void) and `props`, which
+  name, `vod` whether this is a [void element][void] and `props`, which
   is a mixin of all objects passed as arguments to the tag.
 * `text(t)` for every text output with string argument `t`.
 * `close(name)` for a close tag. omitted for void elements.
@@ -215,14 +215,15 @@ function.
 
 ### Built in tags
 
-The built in tags are taken from [mozilla element page](eleme) apart
+The built in tags are taken from [mozilla element page][eleme] apart
 from those listed as obsolote and deprecated. The full list is easiest
-to see in [the source](tags).
+to see in [the source][tags].
 
 #### Void elements
 
-Tagg is aware of [void elements](void), like `<img>` and `<meta>` –
-elements which do not need a close tag.
+Tagg is aware of [void elements][void], like `<img>` and `<meta>` –
+elements which do not need a close tag. The list of such attributes are
+in [the source][attrs].
 
 ### Boolean attributes
 
