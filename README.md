@@ -3,6 +3,15 @@ tagg
 
 > markup as coffeescript (again)
 
+Motivation
+----------
+
+The brevity of coffeescript lends itself well to writing markup
+templates in a style that resembles jade. This has been
+[done](http://coffeekup.org/) [before](https://github.com/snd/kup).
+However tagg eschews preprocessing and builder objects in favour of
+destructuring assignment.
+
 ### Installing with NPM
 
 ```bash`
