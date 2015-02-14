@@ -288,6 +288,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 [eleme]: https://developer.mozilla.org/en/docs/Web/HTML/Element
-[tags]:  https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L56
-[attrs]: https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L6
+[tags]:  https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L74
+[attrs]: https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L8
 [void]:  http://stackoverflow.com/questions/3558119#answer-3558200
