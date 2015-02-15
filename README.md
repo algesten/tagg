@@ -186,8 +186,9 @@ methods:
   name, `vod` whether this is a [void element][void] and `props`, which
   is a mixin of all objects passed as arguments to the tag.
 * `text(t)` for every text output with string argument `t`.
-* `close(name)` for a close tag. omitted for void elements.
-* `end` is caled once output is finished.
+* `close(name)` for a close tag, omitted for void elements.
+* `end` is called once output is finished. The return value of end()
+  is used as return value for the entire `capture`.
 
 This is an example of the default string output:
 
@@ -205,8 +206,7 @@ class StringOut
         @buf.push esc(t)       # escape HTML text
     close: (name) ->
         @buf.push "</#{name}>"
-    end: ->
-    toString: -> @buf.join('')
+    end: -> @buf.join('')      # return value for capture
 ```
 
 The second argument is the function we want to invoke when building,
@@ -225,13 +225,14 @@ to see in [the source][tags].
 
 Tagg is aware of [void elements][void], like `<img>` and `<meta>` –
 elements which do not need a close tag. The list of such attributes are
-in [the source][attrs].
+in [the source][voids].
 
 ### Boolean attributes
 
 Boolean attributes are those whose presence indicates a true value,
-like `checked` in `<input type="checkbox" checked>`. Tagg has a built
-in list of such attributes, and will not output any value for them.
+like `checked` in `<input type="checkbox" checked>`. Tagg has a
+[built in list][attrs] of such attributes, and will not output any
+value for them.
 
 The map value for such properties are used as truthy/falsey, i.e.
 
@@ -293,3 +294,4 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 [tags]:  https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L74
 [attrs]: https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L8
 [void]:  http://stackoverflow.com/questions/3558119#answer-3558200
+[voids]: https://github.com/algesten/tagg/blob/master/src/tagg.coffee#L85
