@@ -8,7 +8,7 @@ mixin       = (os...) -> r = {}; r[k] = v for k, v of o for o in os; r
 # boolean attributes (including html for DOCTYPE) from https://html.spec.whatwg.org/#attributes-3
 bool = {}
 'allowfullscreen,async,autofocus,autoplay,checked,controls,default,defer,disabled,\
-formnovalidate,hidden,ismap,itemscope,loop,multiple,muted,name,novalidate,open,readonly,\
+formnovalidate,hidden,ismap,itemscope,loop,multiple,muted,novalidate,open,readonly,\
 required,reversed,scoped,seamless,selected,sortable,typemustmatch,\
 html'.split(',').forEach (a) -> bool[a] = true
 
