@@ -1,5 +1,5 @@
 tagg = require '../src/tagg'
-{capture, html5, head, meta, body, ol, li, title, script, div, p, img, option} = tagg
+{capture, html5, head, meta, body, ol, li, title, script, div, p, img, option, pass} = tagg
 
 eql = assert.deepEqual
 
@@ -96,6 +96,23 @@ describe 'void elements', ->
 
     it 'handles, albeit being awkward, having nested', ->
         eql (img src:'/panda.jpg', -> p 'panda'), '<img src="/panda.jpg"><p>panda</p>'
+
+describe 'pass tag', ->
+
+    it 'has no open or close tag', ->
+        eql 'panda', pass 'panda'
+
+    it 'ignores object attributes', ->
+        eql 'panda', pass class:'foo', 'panda'
+
+    it 'follows nested functions', ->
+        eql 'panda', pass -> pass -> pass -> 'panda'
+
+    it 'can have nested real tags', ->
+        eql '<div>panda</div>', pass -> div -> 'panda'
+
+    it 'can have text and nested real tags', ->
+        eql 'baby <div>panda</div>', pass 'baby ', -> div -> 'panda'
 
 describe 'readme example', ->
 

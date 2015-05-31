@@ -32,7 +32,7 @@ unnest = (bind, f) ->
 out = null
 
 # creates a tag
-tag = (name, vod) -> tagf = (args...) ->
+tag = (name, vod, ispass=false) -> tagf = (args...) ->
 
     # outmost tag sets up / tears down a StringOut
     return capture(new StringOut, tagf, args) unless out
@@ -40,7 +40,7 @@ tag = (name, vod) -> tagf = (args...) ->
     objs = args.filter(isplain).reduce ((p ,c) -> mixin p, c), {}
     funs = args.filter(not_ isplain).map (a) -> if !isfunction(a) then (->a) else a
 
-    out.begin name, vod, objs
+    out.begin name, vod, objs unless ispass
     unnest(this, f) for f in funs
     out.close name unless vod
     undefined
@@ -85,6 +85,9 @@ decorator,element,shadow,template'.split(',').forEach (t) -> tags[t] = tag t
 # void elements, see http://stackoverflow.com/questions/3558119#answer-3558200
 'area,base,br,col,embed,hr,img,input,keygen,link,meta,param,source,\
 track,wbr'.split(',').forEach (t) -> tags[t] = tag t, true
+
+# special passthrough tag.
+tags['pass'] = tag 'pass', true, true
 
 tags.html5 = (as...) ->
     tag('!DOCTYPE', true) html:true, '\n', -> tags.html as...

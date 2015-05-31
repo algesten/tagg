@@ -134,6 +134,22 @@ Will render:
 <p>some text <img src="/panda.jpg"> after</p>
 ```
 
+### Special `pass` tag
+
+The `pass` tag is useful in instances where you want to have a tag
+that follows the standard tag function unnesting logic, but doesn't
+produce a tag output itself.
+
+```coffee
+pass 'some ', -> pass 'text'
+```
+
+Will render:
+
+```html
+some text
+```
+
 ### Single render thread
 
 When rendering with tagg, all output must be done in one go. No
