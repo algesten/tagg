@@ -87,7 +87,7 @@ decorator,element,shadow,template'.split(',').forEach (t) -> tags[t] = tag t
 track,wbr'.split(',').forEach (t) -> tags[t] = tag t, true
 
 # special passthrough tag.
-tags['pass'] = tag 'pass', true, true
+tags.pass = tag 'pass', true, true
 
 tags.html5 = (as...) ->
     tag('!DOCTYPE', true) html:true, '\n', -> tags.html as...
