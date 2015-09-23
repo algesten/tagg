@@ -2,7 +2,7 @@ isplain     = (o) -> !!o && typeof o == 'object' && o.constructor == Object
 isstring    = (s) -> typeof s == 'string'
 isprimitive = (a) -> typeof a in ['boolean', 'number', 'string', 'symbol']
 isfunction  = (s) -> typeof s == 'function'
-not_        = (f) -> (a...) -> !f(a...)
+nnot        = (f) -> (a...) -> !f(a...)
 mixin       = (os...) -> r = {}; r[k] = v for k, v of o for o in os; r
 
 # boolean attributes (including html for DOCTYPE) from https://html.spec.whatwg.org/#attributes-3
@@ -13,7 +13,7 @@ required,reversed,scoped,seamless,selected,sortable,typemustmatch,\
 html'.split(',').forEach (a) -> bool[a] = true
 
 # escape text
-esc   = (s = '') -> s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+esc   = (s = '') -> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
 # escape attributes
 esca  = (s) -> esc(s).replace(/"/g,'&quot;')
 # turn an array of mixed string/object to attributes
@@ -38,7 +38,7 @@ tag = (name, vod, ispass=false) -> tagf = (args...) ->
     return capture(new StringOut, tagf, args) unless out
 
     objs = args.filter(isplain).reduce ((p ,c) -> mixin p, c), {}
-    funs = args.filter(not_ isplain).map (a) -> if !isfunction(a) then (->a) else a
+    funs = args.filter(nnot isplain).map (a) -> if !isfunction(a) then (->a) else a
 
     out.begin name, vod, objs unless ispass
     unnest(this, f) for f in funs

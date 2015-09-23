@@ -12,6 +12,9 @@ describe 'elements', ->
         eql p({class:'foo', style:'background:black'}, 'data-blah':'panda'),
             '<p class="foo" style="background:black" data-blah="panda"></p>'
 
+    it 'is ok with non-string primitives as attributes', ->
+        eql p({c:42, d:true}), '<p c="42" d="true"></p>'
+
     it 'escapes &, < and " in attribute values', ->
         eql (p class:'_&pa"nda<!'), '<p class="_&amp;pa&quot;nda&lt;!"></p>'
 
