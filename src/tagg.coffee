@@ -4,13 +4,31 @@ isprimitive = (a) -> typeof a in ['boolean', 'number', 'string', 'symbol']
 isfunction  = (s) -> typeof s == 'function'
 nnot        = (f) -> (a...) -> !f(a...)
 mixin       = (os...) -> r = {}; r[k] = v for k, v of o for o in os; r
+splitcm     = (s) -> s.split ','
+merge       = (t, os...) -> t[k] = v for k,v of o for o in os; t
+mixin       = (os...) -> merge {}, os...
+apply       = (fn) -> (args) -> fn.apply this, args
+keyval      = (k, v) -> o = {}; o[k] = v; o
+ktrue       = (k) -> keyval k, true
+map = (f) -> (as) ->
+    r = Array(as.length); len = as.length; i = 0
+    `for (;i < len; ++i) { r[i] = f(as[i]) }`
+    r
+each = (f) -> (as) ->
+    len = as.length; i = 0
+    `for (;i < len; ++i) { f(as[i]) }`
+    undefined
+filter = (f) -> (as) ->
+    r = []
+    ri = -1
+    (r[++ri] = v if f(v)) for v in as
+    r
 
 # boolean attributes (including html for DOCTYPE) from https://html.spec.whatwg.org/#attributes-3
-bool = {}
-'allowfullscreen,async,autofocus,autoplay,checked,controls,default,defer,disabled,\
-formnovalidate,hidden,ismap,itemscope,loop,multiple,muted,novalidate,open,readonly,\
-required,reversed,scoped,seamless,selected,sortable,typemustmatch,\
-html'.split(',').forEach (a) -> bool[a] = true
+bool = apply(mixin) map(ktrue) splitcm 'allowfullscreen,async,autofocus,\
+autoplay,checked,controls,default,defer,disabled,formnovalidate,hidden,ismap,\
+itemscope,loop,multiple,muted,novalidate,open,readonly,required,reversed,scoped,\
+seamless,selected,sortable,typemustmatch,html'
 
 # escape text
 esc   = (s = '') -> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -22,27 +40,39 @@ attr  = (k, v) ->
 attrs = (a) -> (attr(k,v) for k, v of a).join(' ')
 
 # unwrapper for nested content function
-unnest = (bind, f) ->
+unnest = (bind) -> _unnest = (f) ->
     if isfunction f
-        unnest bind, f.call(bind)
+        _unnest f.call(bind)
     else if isprimitive(f)
         out.text String(f)
 
 # global output when rendering, set vi capture()
 out = null
 
+onlyplain = filter(isplain)
+noplain = filter(nnot isplain)
+asfun = (a) -> if isfunction(a) then a else (->a)
+
+oneobj = (as) -> apply(mixin) onlyplain as
+asfuns = (as) -> map(asfun) noplain as
+
 # creates a tag
-tag = (name, vod, ispass=false) -> tagf = (args...) ->
+tag = (name, vod) -> tagf = (args...) ->
 
     # outmost tag sets up / tears down a StringOut
     return capture(new StringOut, tagf, args) unless out
 
-    objs = args.filter(isplain).reduce ((p ,c) -> mixin p, c), {}
-    funs = args.filter(nnot isplain).map (a) -> if !isfunction(a) then (->a) else a
+    objs = oneobj args
+    funs = asfuns args
 
-    out.begin name, vod, objs unless ispass
-    unnest(this, f) for f in funs
+    out.begin name, vod, objs
+    each(unnest(this)) funs
     out.close name unless vod
+    undefined
+
+pass = (args...) ->
+    return capture(new StringOut, pass, args) unless out
+    each(unnest(this)) asfuns args
     undefined
 
 # default output, as string
@@ -63,34 +93,34 @@ capture = (_out, tagf, args) ->
     try
         out = _out
         out.start()
-        tagf.apply this, (args ? [])
+        apply(tagf) args ? []
     finally
         out = null
     _out.end()
 
-# the exported tags (and tag/capture function)
-tags = {tag, capture}
+# helper to make tags
+maketag = (vod) -> (n) -> keyval n, tag(n, vod)
 
 # ############ LIST OF DEFINED TAGS
-
 # html5 normal elements, copied from https://developer.mozilla.org/en/docs/Web/HTML/Element
-'html,head,style,title,address,article,body,footer,header,h1,h2,h3,h4,h5,h6,hgroup,\
-nav,section,blockquote,dd,div,dl,dt,figcaption,figure,li,main,ol,p,pre,ul,a,abbr,b,bdi,\
+elems = apply(mixin) map(maketag()) splitcm 'html,head,style,title,address,\
+article,body,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,blockquote,\
+dd,div,dl,dt,figcaption,figure,li,main,ol,p,pre,ul,a,abbr,b,bdi,\
 bdo,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,ruby,s,samp,small,span,strong,sub,sup,\
 time,u,var,audio,map,video,iframe,object,canvas,noscript,script,del,ins,caption,colgroup,\
 table,tbody,td,tfoot,th,thead,tr,button,datalist,fieldset,form,label,legend,meter,optgroup,\
 option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,\
-decorator,element,shadow,template'.split(',').forEach (t) -> tags[t] = tag t
+decorator,element,shadow,template'
 
 # void elements, see http://stackoverflow.com/questions/3558119#answer-3558200
-'area,base,br,col,embed,hr,img,input,keygen,link,meta,param,source,\
-track,wbr'.split(',').forEach (t) -> tags[t] = tag t, true
+vods = apply(mixin) map(maketag true) splitcm 'area,base,br,col,embed,hr,img,input,\
+keygen,link,meta,param,source,track,wbr'
 
-# special passthrough tag.
-tags.pass = tag 'pass', true, true
-
-tags.html5 = (as...) ->
+html5 = (as...) ->
     tag('!DOCTYPE', true) html:true, '\n', -> tags.html as...
+
+# the exported tags (and functions)
+tags = mixin {tag, capture, pass, html5}, elems, vods
 
 if typeof module == 'object'
     module.exports = tags
