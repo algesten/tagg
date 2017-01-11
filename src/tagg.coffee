@@ -28,7 +28,7 @@ filter = (f) -> (as) ->
 bool = apply(mixin) map(ktrue) splitcm 'allowfullscreen,async,autofocus,\
 autoplay,checked,controls,default,defer,disabled,formnovalidate,hidden,ismap,\
 itemscope,loop,multiple,muted,novalidate,open,readonly,required,reversed,scoped,\
-seamless,selected,sortable,typemustmatch,html'
+seamless,selected,sortable,typemustmatch,html,webview'
 
 # escape text
 esc   = (s = '') -> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
